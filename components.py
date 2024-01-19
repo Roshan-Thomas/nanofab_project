@@ -594,7 +594,7 @@ def mzi_dc(coupler_params,
     wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
     wg3.add_straight_segment(length=(path_length_difference/2))
     wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
-    wg2.add_straight_segment(length=BEND_RADIUS)
+    wg3.add_straight_segment(length=BEND_RADIUS)
 
     # Create the second DC
     DC2 = DirectionalCoupler.make_at_port(port=wg2.current_port,
@@ -614,7 +614,9 @@ def mzi_dc(coupler_params,
                 break
 
     wg4.add_bend(angle=-pi/2,radius=BEND_RADIUS)
-    wg4.add_straight_segment(length=GRATING_TAPER_ROUTE)
+    # wg4.add_straight_segment(length=GRATING_TAPER_ROUTE)
+
+    wg4.add_straight_segment_until_y(left_grating.port.origin[1])
 
     right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
                                                                                     **coupler_params,
@@ -632,7 +634,7 @@ def mzi_dc(coupler_params,
             break
 
     wg5.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
-    wg5.add_straight_segment(length=GRATING_TAPER_ROUTE)
+    wg5.add_straight_segment_until_y(left_grating.port.origin[1])
 
     right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
                                                                                     **coupler_params,
