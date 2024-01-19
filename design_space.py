@@ -50,11 +50,6 @@ def generate_blank_gds(d_height=CHIP_HEIGHT,  # 3000
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Roshan's comment
-
-# Hi Hi Hi
-
-# HHHHHIIII
 
 ########################
 # GRATING LOOPBACK SWEEP
@@ -64,7 +59,7 @@ def grating_sweep(layout_cell,current_width):
 
     # Grating Coupler sweep parameters:
     waveguide_widths = [WAVEGUIDE_WIDTH]
-    added_waveguide_lengths = [10, 110, 210,150,100,80,160,200,140,101, 111, 211,151,81,161,201,141]
+    added_waveguide_lengths = [10, 110, 210,250]
     periods = [GRATING_PERIOD_STANDARD]  # Periods to be swept over
     fill_factors = [GRATING_FILL_FACTOR_STANDARD]  # Fill-factors to be swept over
     cell_width = 0
@@ -241,6 +236,32 @@ def mmi_2X2_sweep(layout_cell):
     return layout_cell# , current_width
 
 
+#######################
+#     MZI Call
+########################
+# def mzi_dc(coupler_params,
+#            coupling_length,
+#            gap,
+#            mzi_centre_spacing,
+#            path_length_difference,
+#            position=(0,0),
+#            name=MZI):
+def mzi_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_centre_spacing = 75
+    path_length_difference = 0
+
+    mzi_cell = mzi_dc(coupler_params,
+           coupling_length = coupling_length,
+           gap = gap,
+           mzi_centre_spacing = mzi_centre_spacing,
+           path_length_difference = path_length_difference,
+           position=(0,0),
+           name= 'MZI')
+    layout_cell.add_to_row(mzi_cell)
+
+    return layout_cell
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -263,13 +284,6 @@ def ring_sweep(layout_cell,current_width):
 
             current_width = current_width + cell_width + layout_cell.horizontal_spacing * 1.5
 
-            # Add to row if it will fit
-            # if current_width > CHIP_WIDTH:
-            #     layout_cell.begin_new_row()
-            #     layout_cell.add_to_row(temp_cell)
-            #     current_width = cell_width + layout_cell.horizontal_alignment + layout_cell.horizontal_spacing
-            # else:
-            #     layout_cell.add_to_row(temp_cell)
 
             if current_width > CHIP_WIDTH:
                 layout_cell.begin_new_row()
@@ -352,11 +366,18 @@ def populate_gds(layout_cell, polygon):
     # layout_cell = mmi_1X2_sweep(layout_cell)
     # layout_cell = mmi_2X2_sweep(layout_cell)
     # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
-    layout_cell, current_width = spiral_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
-    layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
-    layout_cell, current_width = grating_sweep(layout_cell, current_width)
+
+    # Temp comment
+    # layout_cell, current_width = spiral_sweep(layout_cell,current_width)
+    # layout_cell.begin_new_row()
+    # layout_cell,current_width = ring_sweep(layout_cell,current_width)
+    # layout_cell.begin_new_row()
+    # layout_cell, current_width = grating_sweep(layout_cell, current_width)
+
+    # Try to call
+    layout_cell = mzi_sweep(layout_cell)
+
+
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_ZL')
 

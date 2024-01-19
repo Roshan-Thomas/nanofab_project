@@ -539,3 +539,120 @@ def spiral_loopback(coupler_params,
 
     return spiral_loopback_cell
 
+def mzi_dc(coupler_params,
+           coupling_length,
+           gap,
+           mzi_centre_spacing,
+           path_length_difference,
+           position=(0,0),
+           name= 'MZI'):
+    mzi_dc_cell = Cell(name)
+    mzi_dc_cell.add_to_layer(LABEL_LAYER,
+                             Text(origin = LABEL_ORIGIN,
+                                  height = LABEL_HEIGHT,
+                                  angle = LABEL_ANGLE_VERTICAL,
+                                  text = name))
+
+   # Create the left hand side grating coupler
+    left_grating = CornerstoneGratingCoupler().create_coupler(
+        origin=(position[0],position[1]),
+        coupler_params=coupler_params
+    )
+
+    # Create the Straight Waveguide and bend
+    wg1 = Waveguide.make_at_port(
+        port=left_grating.port)  # Create waveguide at the port location of the second grating coupler
+    wg1.add_straight_segment(length=GRATING_TAPER_ROUTE)  # Routing from taper to bend
+    wg1.add_bend(angle=-pi / 2, radius=BEND_RADIUS)  # Add the left-hand bend
+    wg1.add_straight_segment(length=GRATING_TAPER_ROUTE)  # Routing from bend to bottom left DC input
+
+    # Create the first DC
+    DC1 = DirectionalCoupler.make_at_port(port=wg1.current_port,
+                                         length=coupling_length,
+                                         gap=gap,
+                                         bend_radius=BEND_RADIUS)
+
+
+    # Route the top MZI guide
+    wg2 = Waveguide.make_at_port(port=DC1.right_ports[1])
+    wg2.add_straight_segment(length=BEND_RADIUS)
+    wg2.add_bend(angle=pi/2,radius=BEND_RADIUS)
+    wg2.add_bend(angle=-pi/2,radius=BEND_RADIUS)
+    wg2.add_straight_segment(length=(mzi_centre_spacing-2*BEND_RADIUS))
+    wg2.add_bend(angle=-pi/2,radius=BEND_RADIUS)
+    wg2.add_bend(angle= pi/2,radius=BEND_RADIUS)
+    wg2.add_straight_segment(length=BEND_RADIUS)
+
+
+    # Route the bottom MZI guide
+    wg3 = Waveguide.make_at_port(port=DC1.right_ports[0])
+    wg3.add_straight_segment(length=BEND_RADIUS)
+    wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(path_length_difference/2))
+    wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(mzi_centre_spacing - 2 * BEND_RADIUS))
+    wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(path_length_difference/2))
+    wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg2.add_straight_segment(length=BEND_RADIUS)
+
+    # Create the second DC
+    DC2 = DirectionalCoupler.make_at_port(port=wg2.current_port,
+                                          length=coupling_length,
+                                          gap=gap,
+                                          bend_radius=BEND_RADIUS,
+                                          which=1)
+
+
+    # Add a waveguide to the bottom output
+    wg4 = Waveguide.make_at_port(port=DC2.right_ports[0])
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+            if wg4.current_port.origin[0] < j * GRATING_PITCH:
+                wg4.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+                break
+
+    wg4.add_bend(angle=-pi/2,radius=BEND_RADIUS)
+    wg4.add_straight_segment(length=GRATING_TAPER_ROUTE)
+
+    right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg4.angle)
+
+
+    # Add a waveguide to the top output
+    wg5 = Waveguide.make_at_port(port=DC2.right_ports[1])
+    wg5.add_straight_segment(GRATING_PITCH)
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+        if wg5.current_port.origin[0] < j * GRATING_PITCH:
+            wg5.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+
+    wg5.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg5.add_straight_segment(length=GRATING_TAPER_ROUTE)
+
+    right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg5.angle)
+
+    # Add the sub-components to the MZI cell
+
+    mzi_dc_cell.add_cell(left_grating.cell)
+    mzi_dc_cell.add_cell(right_grating1.cell)
+    mzi_dc_cell.add_cell(right_grating2.cell)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER,wg1)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, wg2)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, wg3)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, wg4)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, wg5)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, DC1)
+    mzi_dc_cell.add_to_layer(WAVEGUIDE_LAYER, DC2)
+
+    # Grating checker
+    grating_checker([left_grating,right_grating1])
+    grating_checker([left_grating, right_grating2])
+
+    return mzi_dc_cell
