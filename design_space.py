@@ -262,6 +262,23 @@ def mzi_sweep(layout_cell):
     layout_cell.add_to_row(mzi_cell)
 
     return layout_cell
+
+def mzi2_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_centre_spacing = 75
+    path_length_difference = 0
+
+    mzi_cell = mzi_dc2(coupler_params,
+           coupling_length = coupling_length,
+           gap = gap,
+           mzi_centre_spacing = mzi_centre_spacing,
+           path_length_difference = path_length_difference,
+           position=(0,0),
+           name= 'MZI2')
+    layout_cell.add_to_row(mzi_cell)
+
+    return layout_cell
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -376,7 +393,7 @@ def populate_gds(layout_cell, polygon):
 
     # Try to call
     layout_cell = mzi_sweep(layout_cell)
-
+    layout_cell = mzi2_sweep(layout_cell)
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_ZL')
