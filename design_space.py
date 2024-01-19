@@ -351,7 +351,7 @@ def populate_gds(layout_cell, polygon):
 
     # layout_cell = mmi_1X2_sweep(layout_cell)
     # layout_cell = mmi_2X2_sweep(layout_cell)
-    # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
+    layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
     layout_cell, current_width = spiral_sweep(layout_cell,current_width)
     layout_cell.begin_new_row()
     layout_cell,current_width = ring_sweep(layout_cell,current_width)

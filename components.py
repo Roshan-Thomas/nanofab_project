@@ -250,15 +250,15 @@ def directional_coupler(coupler_params,
 
 
     # Add the sub-components to the respective cell and layers
-    directional_coupler_cell.add_cell(left_grating1.cell)  # Add the first left-hand grating coupler cell to the DC cell
-    directional_coupler_cell.add_cell(left_grating2.cell)  # Add the second left-hand grating coupler cell to the DC cell
-    directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg1)  # Add the first waveguide to the loopback cell
-    directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg2)  # Add the second waveguide to the loopback cell
+    # directional_coupler_cell.add_cell(left_grating1.cell)  # Add the first left-hand grating coupler cell to the DC cell
+    # directional_coupler_cell.add_cell(left_grating2.cell)  # Add the second left-hand grating coupler cell to the DC cell
+    # directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg1)  # Add the first waveguide to the loopback cell
+    # directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg2)  # Add the second waveguide to the loopback cell
     directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, DC)  # Add the DC sub-component to the DC cell
-    directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg3)  # Add the third waveguide to the DC cell
-    directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg4)  # Add the fourth waveguide to the DC cell
-    directional_coupler_cell.add_cell(right_grating1.cell)  # Add the first right-hand grating coupler to the DC cell
-    directional_coupler_cell.add_cell(right_grating2.cell)  # Add the second right-hand grating coupler to the DC cell
+    # directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg3)  # Add the third waveguide to the DC cell
+    # directional_coupler_cell.add_to_layer(WAVEGUIDE_LAYER, wg4)  # Add the fourth waveguide to the DC cell
+    # directional_coupler_cell.add_cell(right_grating1.cell)  # Add the first right-hand grating coupler to the DC cell
+    # directional_coupler_cell.add_cell(right_grating2.cell)  # Add the second right-hand grating coupler to the DC cell
 
     # Grating checker
     grating_checker([left_grating1, left_grating2])
