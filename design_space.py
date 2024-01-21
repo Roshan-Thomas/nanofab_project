@@ -59,7 +59,8 @@ def grating_sweep(layout_cell,current_width):
 
     # Grating Coupler sweep parameters:
     waveguide_widths = [WAVEGUIDE_WIDTH]
-    added_waveguide_lengths = [10, 110, 210,250]
+    # added_waveguide_lengths = [10, 110, 210,250]
+    added_waveguide_lengths = range(10, 250, 15)
     periods = [GRATING_PERIOD_STANDARD]  # Periods to be swept over
     fill_factors = [GRATING_FILL_FACTOR_STANDARD]  # Fill-factors to be swept over
     cell_width = 0
@@ -305,7 +306,7 @@ def cascaded_mzi_sweep(layout_cell):
 
 def ring_sweep(layout_cell,current_width):
 
-    ring_radii = np.linspace(70, 120, 3)    # Ring radii to be swept over (start, stop, no. steps)
+    ring_radii = np.linspace(70, 120, 5)    # Ring radii to be swept over (start, stop, no. steps)
     gap_size = np.linspace(0.250, 0.750, 3) # Gap sizes to be swept over (start, stop, no. steps)
 
     for i, ring_radius in enumerate(ring_radii):
@@ -315,7 +316,6 @@ def ring_sweep(layout_cell,current_width):
                                                   gap=gap,
                                                   radius=ring_radius,
                                                   name='Ring_Resonator_ZL\nRadius_' + str(ring_radius) + '\nGap_' + str(gap))
-            # layout_cell.add_to_row(sweep_ring_resonator)
 
             cell_width = -sweep_ring_resonator.bounds[0] + sweep_ring_resonator.bounds[2]
 
@@ -323,7 +323,7 @@ def ring_sweep(layout_cell,current_width):
 
 
             if current_width > CHIP_WIDTH:
-                layout_cell.begin_new_row()
+                # layout_cell.begin_new_row()
                 layout_cell.add_to_row(sweep_ring_resonator)
                 current_width = cell_width + layout_cell.horizontal_alignment + layout_cell.horizontal_spacing
             else:
@@ -339,7 +339,8 @@ def ring_sweep(layout_cell,current_width):
 def spiral_sweep(layout_cell,current_width):
 
     # Sweep parameters:
-    number_of_loops = [17, 22, 28]
+    # number_of_loops = [2, 7, 12, 17, 22, 27]
+    number_of_loops = range(2, 28, 3)
     gap_sizes = [10]
     inner_gap_sizes = [15]
 
