@@ -1010,6 +1010,24 @@ def cascaded_mzi_dc(coupler_params,
                                         which=1)
     
 
+    #### TODO: Add Left Gratings for the Cascaded MZIs
+
+    # wg11 = Waveguide.make_at_port(port=DC5.left_ports[0])
+
+    # # # Routing to the next multiple of 127
+    # # for j in range(VGA_NUM_CHANNELS):
+    # #     if wg11.current_port.origin[0] < j * GRATING_PITCH:
+    # #         wg11.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+    # #         break
+    
+    # wg11.add_bend(angle=pi/2, radius=BEND_RADIUS)
+
+
+
+    # left_grating3 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(
+    #     origin=()
+    # )
+
     ################
 
     # Add the sub-components to the MZI cell
@@ -1029,6 +1047,7 @@ def cascaded_mzi_dc(coupler_params,
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg8)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg9)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg10)
+    cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg11)
     
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, DC1)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, DC2)
