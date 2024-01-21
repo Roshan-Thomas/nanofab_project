@@ -28,7 +28,7 @@ def generate_blank_gds(d_height=CHIP_HEIGHT,  # 3000
     outer_corners = [(0, 0), (d_width, 0), (d_width, d_height), (0, d_height)]
     polygon = Polygon(outer_corners)
 
-    layout = GridLayout(title='Example_SOI_Devices_Zhaojin_2023',
+    layout = GridLayout(title='Example_SOI_Devices_Roshan_Zhaojin_2023',
                         frame_layer=CELL_OUTLINE_LAYER,
                         text_layer=LABEL_LAYER,
                         region_layer_type=None,
@@ -279,6 +279,26 @@ def mzi2_sweep(layout_cell):
     layout_cell.add_to_row(mzi_cell)
 
     return layout_cell
+
+
+def cascaded_mzi_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_centre_spacing = 75
+    path_length_difference = 0
+
+    mzi_cell = cascaded_mzi_dc(coupler_params,
+                        coupling_length = coupling_length,
+                        gap = gap,
+                        mzi_center_spacing = mzi_centre_spacing,
+                        path_length_difference = path_length_difference,
+                        position = (0,0),
+                        name = 'Cascaded MZI'
+                        )
+    layout_cell.add_to_row(mzi_cell)
+
+    return layout_cell
+
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -394,6 +414,8 @@ def populate_gds(layout_cell, polygon):
     # Try to call
     layout_cell = mzi_sweep(layout_cell)
     layout_cell = mzi2_sweep(layout_cell)
+    layout_cell = cascaded_mzi_sweep(layout_cell)
+
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_ZL')
