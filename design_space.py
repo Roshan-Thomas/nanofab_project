@@ -28,7 +28,7 @@ def generate_blank_gds(d_height=CHIP_HEIGHT,  # 3000
     outer_corners = [(0, 0), (d_width, 0), (d_width, d_height), (0, d_height)]
     polygon = Polygon(outer_corners)
 
-    layout = GridLayout(title='Example_SOI_Devices_Roshan_Zhaojin_2023',
+    layout = GridLayout(title='SOI_Devices_Roshan_Zhaojin_2023',
                         frame_layer=CELL_OUTLINE_LAYER,
                         text_layer=LABEL_LAYER,
                         region_layer_type=None,
@@ -374,10 +374,6 @@ def spiral_sweep(layout_cell,current_width):
                 else:
                     layout_cell.add_to_row(sweep_spiral)
 
-
-
-
-
     return layout_cell, current_width
 
 
@@ -404,16 +400,19 @@ def populate_gds(layout_cell, polygon):
     # layout_cell = mmi_2X2_sweep(layout_cell)
     # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
 
+    # Spiral Sweep
     layout_cell, current_width = spiral_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
-    layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
-    layout_cell, current_width = grating_sweep(layout_cell, current_width)
-
 
     # Cascaded MZI
     layout_cell = cascaded_mzi_sweep(layout_cell)
+    layout_cell.begin_new_row()
 
+    # Ring Sweep
+    layout_cell,current_width = ring_sweep(layout_cell,current_width)
+    layout_cell.begin_new_row()
+
+    # Grating Sweep
+    layout_cell, current_width = grating_sweep(layout_cell, current_width)
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
