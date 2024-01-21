@@ -398,33 +398,31 @@ def populate_gds(layout_cell, polygon):
 
     # Add the device sweeps to the layout cell
     # layout_cell = test_structure_gc(layout_cell)
- # test change
+
 
     # layout_cell = mmi_1X2_sweep(layout_cell)
     # layout_cell = mmi_2X2_sweep(layout_cell)
     # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
 
-    # Temp comment
-    # layout_cell, current_width = spiral_sweep(layout_cell,current_width)
-    # layout_cell.begin_new_row()
-    # layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    # layout_cell.begin_new_row()
-    # layout_cell, current_width = grating_sweep(layout_cell, current_width)
+    layout_cell, current_width = spiral_sweep(layout_cell,current_width)
+    layout_cell.begin_new_row()
+    layout_cell,current_width = ring_sweep(layout_cell,current_width)
+    layout_cell.begin_new_row()
+    layout_cell, current_width = grating_sweep(layout_cell, current_width)
 
-    # Try to call
-    layout_cell = mzi_sweep(layout_cell)
-    layout_cell = mzi2_sweep(layout_cell)
+
+    # Cascaded MZI
     layout_cell = cascaded_mzi_sweep(layout_cell)
 
 
     # Generate the design space populated with the devices
-    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_ZL')
+    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
 
     # Add our bounding box
     design_space_cell.add_to_layer(CELL_OUTLINE_LAYER, polygon)
 
     # Save our GDS
-    design_space_cell.save('{0}SOI_Devices_ZL_2023.gds'.format(savepath))
+    design_space_cell.save('{0}SOI_Devices_RT_ZL_2023.gds'.format(savepath))
     # design_space_cell.show()
 
     return design_space_cell

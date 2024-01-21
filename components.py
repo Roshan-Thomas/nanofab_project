@@ -1047,7 +1047,7 @@ def cascaded_mzi_dc(coupler_params,
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg8)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg9)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg10)
-    cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg11)
+    # cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, wg11) 
     
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, DC1)
     cascaded_mzi.add_to_layer(WAVEGUIDE_LAYER, DC2)
