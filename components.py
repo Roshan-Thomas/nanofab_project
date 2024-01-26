@@ -1102,7 +1102,8 @@ def dc_mzi_block(cascaded_dc_mzi,
             coupling_length,
             gap,
             mzi_center_spacing,
-            path_length_difference):
+            path_length_difference,
+            connection_flag):
 
     # Create the First DC
     DC1 = DirectionalCoupler.make_at_port(port=wg.current_port,
@@ -1110,8 +1111,13 @@ def dc_mzi_block(cascaded_dc_mzi,
                                         gap=gap,
                                         bend_radius=BEND_RADIUS)
 
+    if connection_flag == 1:
+        CONNECTION_PORT = connection_port.current_port
+    else:
+        CONNECTION_PORT = connection_port.port
+
     # Route the left grating 1 to the DC
-    wg1 = Waveguide.make_at_port(port=connection_port.port)
+    wg1 = Waveguide.make_at_port(port=CONNECTION_PORT)
     wg1.add_straight_segment_until_y(DC1.left_ports[1].origin[1] - BEND_RADIUS)
     wg1.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg1.add_straight_segment_until_x(DC1.left_ports[1].origin[0])
@@ -1229,7 +1235,8 @@ def cascaded_straight_dc_mzi(coupler_params,
                     coupling_length, 
                     gap,
                     mzi_center_spacing,
-                    path_length_difference)
+                    path_length_difference,
+                    connection_flag=0)
     
     wg1 = Waveguide.make_at_port(port=DC_output.right_ports[0])
 
@@ -1246,6 +1253,14 @@ def cascaded_straight_dc_mzi(coupler_params,
 
     # # DC-MZI Block
 
+    DC_bottom = DirectionalCoupler.make_at_port(
+        port=wg1.current_port,
+        length=coupling_length,
+        gap=gap,
+        bend_radius=BEND_RADIUS,
+        which=1
+    )
+
     # DC_output_2 = dc_mzi_block(
     #     cascaded_dc_mzi,
     #     coupler_params, 
@@ -1254,7 +1269,8 @@ def cascaded_straight_dc_mzi(coupler_params,
     #     coupling_length, 
     #     gap,
     #     mzi_center_spacing,
-    #     path_length_difference
+    #     path_length_difference,
+    #     connection_flag=1
     # )
 
     wg2 = Waveguide.make_at_port(port=DC_output.right_ports[1])
@@ -1270,7 +1286,13 @@ def cascaded_straight_dc_mzi(coupler_params,
     wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg2.add_straight_segment(GRATING_PITCH)
 
-
+    DC_top = DirectionalCoupler.make_at_port(
+        port=wg2.current_port,
+        length=coupling_length,
+        gap=gap,
+        bend_radius=BEND_RADIUS,
+        which=1
+    )
 
     #########
 
@@ -1281,6 +1303,9 @@ def cascaded_straight_dc_mzi(coupler_params,
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg1)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg2)
+
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_top)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_bottom)
 
     # Grating checker
     grating_checker([left_grating1, left_grating2])
