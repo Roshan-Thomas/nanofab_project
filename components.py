@@ -1062,3 +1062,227 @@ def cascaded_mzi_dc(coupler_params,
     # grating_checker([left_grating2, right_grating1])
 
     return cascaded_mzi
+
+##############
+# Final Device
+##############
+
+def custom_mzi(DC, 
+                mzi_center_spacing, 
+                path_length_difference
+                ):
+    # Route the top MZI guide
+    wg2 = Waveguide.make_at_port(port=DC.right_ports[1])
+    wg2.add_straight_segment(length=BEND_RADIUS)
+    wg2.add_bend(angle=pi/2, radius=BEND_RADIUS)
+    wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg2.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg2.add_bend(angle=pi/2, radius=BEND_RADIUS)
+    wg2.add_straight_segment(length=BEND_RADIUS)
+
+    # Route the bottom MZI guide
+    wg3 = Waveguide.make_at_port(port=DC.right_ports[0])
+    wg3.add_straight_segment(length=BEND_RADIUS)
+    wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(path_length_difference/2))
+    wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=(path_length_difference/2))
+    wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment(length=BEND_RADIUS)
+
+    return wg2, wg3
+
+def dc_mzi_block(cascaded_dc_mzi,
+            coupler_params,
+            wg,
+            connection_port,
+            coupling_length,
+            gap,
+            mzi_center_spacing,
+            path_length_difference):
+
+    # Create the First DC
+    DC1 = DirectionalCoupler.make_at_port(port=wg.current_port,
+                                        length=coupling_length,
+                                        gap=gap,
+                                        bend_radius=BEND_RADIUS)
+
+    # Route the left grating 1 to the DC
+    wg1 = Waveguide.make_at_port(port=connection_port.port)
+    wg1.add_straight_segment_until_y(DC1.left_ports[1].origin[1] - BEND_RADIUS)
+    wg1.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg1.add_straight_segment_until_x(DC1.left_ports[1].origin[0])
+
+    top_mzi_1, bottom_mzi_1 = custom_mzi(
+        DC1, 
+        mzi_center_spacing, 
+        path_length_difference
+        )
+
+    # Create the second DC
+    DC2 = DirectionalCoupler.make_at_port(
+        port=top_mzi_1.current_port,
+        length=coupling_length,
+        gap=gap,
+        bend_radius=BEND_RADIUS,
+        which=1
+    )
+
+    top_mzi_2, bottom_mzi_2 = custom_mzi(
+        DC2,
+        mzi_center_spacing,
+        path_length_difference
+    )
+
+    DC3 = DirectionalCoupler.make_at_port(
+        port=top_mzi_2.current_port,
+        length=coupling_length,
+        gap=gap,
+        bend_radius=BEND_RADIUS,
+        which=1
+    )
+
+    top_mzi_3, bottom_mzi_3 = custom_mzi(
+        DC3,
+        mzi_center_spacing,
+        path_length_difference
+    )
+
+    DC4 = DirectionalCoupler.make_at_port(
+        port=top_mzi_3.current_port,
+        length=coupling_length,
+        gap=gap,
+        bend_radius=BEND_RADIUS,
+        which=1
+    )
+
+
+    #### Add sub-components to the Waveguide Layer
+
+    # Waveguides
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg1)
+
+    # MZI 
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, top_mzi_1)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, bottom_mzi_1)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, top_mzi_2)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, bottom_mzi_2)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, top_mzi_3)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, bottom_mzi_3)
+
+    # Directional Couplers
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC1)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC2)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC3)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC4)
+
+    return DC4
+    
+    
+
+
+def cascaded_straight_dc_mzi(coupler_params,
+                            coupling_length,
+                            gap,
+                            mzi_center_spacing,
+                            path_length_difference,
+                            position=(0,0),
+                            name='CASCADED_STRAIGHT_DC_MZI'):
+
+    cascaded_dc_mzi = Cell(name)
+    cascaded_dc_mzi.add_to_layer(LABEL_LAYER,
+                                Text(origin = LABEL_ORIGIN,
+                                height = LABEL_HEIGHT,
+                                angle = LABEL_ANGLE_VERTICAL,
+                                text = name))
+
+    # Create the left hand side grating coupler
+    left_grating1 = CornerstoneGratingCoupler().create_coupler(
+        origin=(position[0], position[1]),
+        coupler_params=coupler_params
+    )
+
+    left_grating2 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH, position[1]),
+        coupler_params=coupler_params
+    )
+
+
+    # Create the Straight Waveguide and bend
+    wg = Waveguide.make_at_port(
+        port=left_grating2.port
+    )
+    wg.add_straight_segment(length=GRATING_TAPER_ROUTE)
+    wg.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg.add_straight_segment(length=GRATING_TAPER_ROUTE)
+
+    # DC-MZI Block
+
+    DC_output = dc_mzi_block(
+                    cascaded_dc_mzi,
+                    coupler_params, 
+                    wg, 
+                    left_grating1, 
+                    coupling_length, 
+                    gap,
+                    mzi_center_spacing,
+                    path_length_difference)
+    
+    wg1 = Waveguide.make_at_port(port=DC_output.right_ports[0])
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+        if wg1.current_port.origin[0] < j * GRATING_PITCH:
+            wg1.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    
+    wg1.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg1.add_straight_segment(GRATING_PITCH)
+    wg1.add_bend(angle=pi/2, radius=BEND_RADIUS)
+    wg1.add_straight_segment(GRATING_PITCH)
+
+    # # DC-MZI Block
+
+    # DC_output_2 = dc_mzi_block(
+    #     cascaded_dc_mzi,
+    #     coupler_params, 
+    #     wg, 
+    #     wg1, 
+    #     coupling_length, 
+    #     gap,
+    #     mzi_center_spacing,
+    #     path_length_difference
+    # )
+
+    wg2 = Waveguide.make_at_port(port=DC_output.right_ports[1])
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+        if wg2.current_port.origin[0] < j * GRATING_PITCH:
+            wg2.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    
+    wg2.add_bend(angle=pi/2, radius=BEND_RADIUS)
+    wg2.add_straight_segment(GRATING_PITCH)
+    wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg2.add_straight_segment(GRATING_PITCH)
+
+
+
+    #########
+
+    # Add the sub-components to the MZI Cell
+    cascaded_dc_mzi.add_cell(left_grating1.cell)
+    cascaded_dc_mzi.add_cell(left_grating2.cell)
+
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg1)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg2)
+
+    # Grating checker
+    grating_checker([left_grating1, left_grating2])
+
+    return cascaded_dc_mzi

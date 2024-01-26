@@ -300,6 +300,29 @@ def cascaded_mzi_sweep(layout_cell):
 
     return layout_cell
 
+
+#######################
+# Cascaded DC MZI SWEEP
+#######################
+
+def cascaded_dc_mzi_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_center_spacing = 75
+    path_length_difference = 0
+
+    cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
+                                        coupling_length=coupling_length,
+                                        gap=gap,
+                                        mzi_center_spacing=mzi_center_spacing,
+                                        path_length_difference=path_length_difference,
+                                        position=(0,0),
+                                        name='CASCADED_STRAIGHT_DC_MZI') 
+
+    layout_cell.add_to_row(cascaded_dc_mzi_cell)
+
+    return layout_cell
+
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -401,19 +424,23 @@ def populate_gds(layout_cell, polygon):
     # layout_cell = mmi_2X2_sweep(layout_cell)
     # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
 
-    # Spiral Sweep
-    layout_cell, current_width = spiral_sweep(layout_cell,current_width)
+    # # Spiral Sweep
+    # layout_cell, current_width = spiral_sweep(layout_cell,current_width)
 
-    # Cascaded MZI
-    layout_cell = cascaded_mzi_sweep(layout_cell)
-    layout_cell.begin_new_row()
+    # # Cascaded MZI
+    # layout_cell = cascaded_mzi_sweep(layout_cell)
+    # layout_cell.begin_new_row()
 
-    # Ring Sweep
-    layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
+    # # Ring Sweep
+    # layout_cell,current_width = ring_sweep(layout_cell,current_width)
+    # layout_cell.begin_new_row()
 
-    # Grating Sweep
-    layout_cell, current_width = grating_sweep(layout_cell, current_width)
+    # # Grating Sweep
+    # layout_cell, current_width = grating_sweep(layout_cell, current_width)
+
+    # Cascaded Straight DC MZIs
+    layout_cell = cascaded_dc_mzi_sweep(layout_cell)
+
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
