@@ -1223,6 +1223,7 @@ def mzi_spiral(coupler_params,
     mzi_spiral_cell.add_to_layer(WAVEGUIDE_LAYER, DC2)
     mzi_spiral_cell.add_to_layer(WAVEGUIDE_LAYER, DC3)
     mzi_spiral_cell.add_to_layer(WAVEGUIDE_LAYER, spiral)
+
     # Grating checker
     grating_checker([left_grating1, right_grating1])
     grating_checker([left_grating2, right_grating2])
