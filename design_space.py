@@ -300,6 +300,36 @@ def cascaded_mzi_sweep(layout_cell):
 
     return layout_cell
 
+
+####################
+# MZI_SPIRAL SWEEP #
+####################
+
+def mzi_spiral_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_centre_spacing = 75
+    path_length_difference = 200
+    number = 10
+    gap_size = 10
+    inner_gap_size = 15
+
+    mzi_spiral_cell = mzi_spiral(coupler_params,
+           coupling_length = coupling_length,
+           gap = gap,
+           mzi_centre_spacing = mzi_centre_spacing,
+           path_length_difference = path_length_difference,
+           number = number,
+           gap_size = gap_size,
+           inner_gap_size = inner_gap_size,
+           position=(0,0),
+           name= 'MZI_SPIRAL')
+    layout_cell.add_to_row(mzi_spiral_cell)
+
+    return layout_cell
+
+
+
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -402,18 +432,22 @@ def populate_gds(layout_cell, polygon):
     # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
 
     # Spiral Sweep
-    layout_cell, current_width = spiral_sweep(layout_cell,current_width)
+    # layout_cell, current_width = spiral_sweep(layout_cell,current_width)
+    #
+    # # Cascaded MZI
+    # layout_cell = cascaded_mzi_sweep(layout_cell)
+    # layout_cell.begin_new_row()
+    #
+    # # Ring Sweep
+    # layout_cell,current_width = ring_sweep(layout_cell,current_width)
+    # layout_cell.begin_new_row()
+    #
+    # # Grating Sweep
+    # layout_cell, current_width = grating_sweep(layout_cell, current_width)
 
-    # Cascaded MZI
-    layout_cell = cascaded_mzi_sweep(layout_cell)
-    layout_cell.begin_new_row()
+    # MZI_SPIRAL SWEEP
+    layout_cell = mzi_spiral_sweep(layout_cell)
 
-    # Ring Sweep
-    layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    layout_cell.begin_new_row()
-
-    # Grating Sweep
-    layout_cell, current_width = grating_sweep(layout_cell, current_width)
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
