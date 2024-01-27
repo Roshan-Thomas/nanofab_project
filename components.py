@@ -1062,3 +1062,312 @@ def cascaded_mzi_dc(coupler_params,
     # grating_checker([left_grating2, right_grating1])
 
     return cascaded_mzi
+
+
+def CNOT_GATE (coupler_params,
+                        coupling_length1,
+                        coupling_length2,
+                        gap1,
+                        gap2,
+                        position=(0, 0),
+                        name='CNOT Gate'):
+
+    # Create the cell that we are going to add to
+    CNOT_GATE_cell = Cell(name)
+    CNOT_GATE_cell.add_to_layer(LABEL_LAYER,
+                                          Text(origin=LABEL_ORIGIN,
+                                               height=LABEL_HEIGHT,
+                                               angle=LABEL_ANGLE_VERTICAL,
+                                               text=name
+                                               )
+                                          )
+
+    # Create the first left-hand side grating coupler
+    left_grating1 = CornerstoneGratingCoupler().create_coupler(
+        origin=(position[0], position[1]),
+        coupler_params=coupler_params)
+    #
+    # Create the second left-hand side grating coupler
+    left_grating2 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH, position[1]),
+        coupler_params=coupler_params)
+
+    left_grating3 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH*2, position[1]),
+        coupler_params=coupler_params)
+
+    left_grating4 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH*3, position[1]),
+        coupler_params=coupler_params)
+
+    left_grating5 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH * 4, position[1]),
+        coupler_params=coupler_params)
+
+    left_grating6 = CornerstoneGratingCoupler().create_coupler(
+        origin=(GRATING_PITCH * 5, position[1]),
+        coupler_params=coupler_params)
+
+     # Route the fifth left-hand grating coupler to the DC1
+    wg5 = Waveguide.make_at_port(port=left_grating5.port)  # Create waveguide at the port location of the second grating coupler
+    wg5.add_straight_segment(length=GRATING_TAPER_ROUTE*2)  # Routing from taper to bend
+    wg5.add_bend(angle=-pi / 2, radius=BEND_RADIUS)  # Add the left-hand bend
+    wg5.add_straight_segment(length=GRATING_TAPER_ROUTE)  # Routing from bend to bottom left DC input
+    #
+    # Create a DC at the waveguide attached to the second left-hand grating coupler
+    DC1 = DirectionalCoupler.make_at_port(port=wg5.current_port,
+                                         length=coupling_length1,
+                                         gap=gap1,
+                                         bend_radius=BEND_RADIUS)
+
+    # Route the fourth left-hand grating coupler to the DC1
+    wg4 = Waveguide.make_at_port(port=left_grating4.port)   # Create waveguide at the port location of the first grating coupler
+    wg4.add_straight_segment_until_y(DC1.left_ports[1].origin[1] - BEND_RADIUS)  # Routing from taper to bend
+    wg4.add_bend(angle=-pi / 2, radius=BEND_RADIUS) # Add the left-hand bend
+    wg4.add_straight_segment_until_x(DC1.left_ports[1].origin[0])  # Routing from bend to top left DC input
+
+    # Route the third left-hand grating coupler to the DC2
+    wg3 = Waveguide.make_at_port(port=left_grating3.port)
+    wg3.add_straight_segment_until_y(DC1.left_ports[1].origin[1] + GRATING_TAPER_ROUTE)
+    wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg3.add_straight_segment_until_x(DC1.left_ports[1].origin[0])
+
+    # Create  DC2 at the waveguide attached to the second left-hand grating coupler
+    DC2 = DirectionalCoupler.make_at_port(port=wg3.current_port,
+                                          length=coupling_length1,
+                                          gap=gap1,
+                                          bend_radius=BEND_RADIUS)
+
+    # Route the second left grating to the DC2
+    wg2 = Waveguide.make_at_port(port=left_grating2.port)
+    wg2.add_straight_segment_until_y(DC2.left_ports[1].origin[1] - BEND_RADIUS)
+    wg2.add_bend(angle = -pi/2, radius= BEND_RADIUS)
+    wg2.add_straight_segment_until_x(DC2.left_ports[1].origin[0])
+
+    # Route the zeroth right port to the next DC3
+    wg7 = Waveguide.make_at_port(port=DC1.right_ports[0])
+    wg7.add_straight_segment_until_x(left_grating6.port.origin[0]+BEND_RADIUS + GRATING_TAPER_ROUTE)
+
+    # Create  DC3 at the waveguide attached to the seventh waveguide
+    DC3 = DirectionalCoupler.make_at_port(port=wg7.current_port,
+                                          length=coupling_length2,
+                                          gap=gap2,
+                                          bend_radius=BEND_RADIUS,
+                                          which = 1)
+    # Route the sixth left grating coupler to DC3
+    wg6 = Waveguide.make_at_port(port= left_grating6.port)
+    wg6.add_straight_segment_until_y(DC3.left_ports[0].origin[1]-BEND_RADIUS)
+    wg6.add_bend(angle=-pi/2,radius=BEND_RADIUS)
+    wg6.add_straight_segment_until_x(DC3.left_ports[0].origin[0])
+
+    # Route from the zeroth right port of DC3
+    wg8 = Waveguide.make_at_port(DC3.right_ports[0])
+
+    # Routing to the next multiple of 127
+
+    for j in range(VGA_NUM_CHANNELS):
+        if wg8.current_port.origin[0] < j * GRATING_PITCH:
+            wg8.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    wg8.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg8.add_straight_segment_until_y(left_grating1.port.origin[1])
+
+
+
+    # Create the sixth right-hand side grating coupler
+    # right_grating6 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(
+    #     port=wg8.current_port,
+    #     **coupler_params,
+    #     angle=wg8.angle)
+
+    right_grating6 = CornerstoneGratingCoupler().create_coupler(origin=(wg8.current_port.origin[0], position[1]),
+                                                                coupler_params=coupler_params)
+
+    # Route from the first right port of DC1
+
+    length1 = DC2.right_ports[0].origin[1] - DC1.right_ports[1].origin[1]
+    length2 = DC3.left_ports[1].origin[1] -  DC3.left_ports[0].origin[1]
+    new_radius = (length1  - length2)/4
+
+    wg9 = Waveguide.make_at_port(DC1.right_ports[1])
+    wg9.add_bend(angle = pi/2, radius=new_radius)
+    wg9.add_bend(angle= -pi / 2, radius=new_radius)
+    wg9.add_straight_segment_until_x(DC3.left_ports[1].origin[0])
+
+    DC4 = DirectionalCoupler.make_at_port(port=wg9.current_port,
+                                          length=coupling_length2,
+                                          gap=gap2,
+                                          bend_radius=BEND_RADIUS,
+                                          which=0)
+
+    wg10 = Waveguide.make_at_port(DC2.right_ports[0])
+    wg10.add_bend(angle= -pi / 2, radius=new_radius)
+    wg10.add_bend(angle= pi / 2, radius=new_radius)
+    wg10.add_straight_segment_until_x(DC3.left_ports[1].origin[0])
+
+
+    wg11 = Waveguide.make_at_port(DC2.right_ports[1])
+    # wg11.add_bend(angle=pi / 2, radius= BEND_RADIUS)
+    # wg11.add_bend(angle=-pi / 2, radius= BEND_RADIUS)
+    wg11.add_straight_segment_until_x(DC3.left_ports[1].origin[0])
+
+
+    # Create the fifth DC at the top
+    DC5 = DirectionalCoupler.make_at_port(port=wg11.current_port,
+                                          length=coupling_length2,
+                                          gap=gap2,
+                                          bend_radius=BEND_RADIUS,
+                                          which=0)
+
+
+
+
+    # Route the wg1 from left grating1
+    wg1 = Waveguide.make_at_port(port = left_grating1.port)
+    wg1.add_straight_segment_until_y(DC5.left_ports[1].origin[1] -BEND_RADIUS)
+    wg1.add_bend(angle = -pi/2, radius= BEND_RADIUS)
+    wg1.add_straight_segment_until_x(DC3.left_ports[1].origin[0])
+    # # Create the right grating coupler at the waveguide port location
+    # right_grating = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(
+    #     port=wg.current_port,
+    #     **coupler_params, angle=wg.angle)
+
+    # Create the last DC
+    length3 = DC4.right_ports[0].origin[1] - DC3.right_ports[1].origin[1]
+    length4 = DC1.right_ports[1].origin[1] - DC1.right_ports[0].origin[1]
+    radius3 = (length3 - length4) / 4
+
+    wg12 = Waveguide.make_at_port(DC3.right_ports[1])
+    wg12.add_bend(angle= pi/2,radius= radius3)
+    wg12.add_bend(angle= -pi / 2, radius=radius3)
+
+    # Create the sixth DC at the top
+    DC6 = DirectionalCoupler.make_at_port(port=wg12.current_port,
+                                          length=coupling_length1,
+                                          gap=gap1,
+                                          bend_radius=BEND_RADIUS,
+                                          which=0)
+
+    # Create the 13th waveguide to connect the DC6
+    wg13 = Waveguide.make_at_port(port=DC4.right_ports[0])
+    wg13.add_bend(angle=-pi / 2, radius=radius3)
+    wg13.add_bend(angle= pi / 2, radius=radius3)
+
+    # Now create the waveguide to connect the right-gratings
+
+    wg14 = Waveguide.make_at_port(DC6.right_ports[0])
+
+    # Routing to the next multiple of 127
+
+    for i in range(VGA_NUM_CHANNELS):
+        if wg14.current_port.origin[0] < i * GRATING_PITCH:
+            wg14.add_straight_segment_until_x(i * GRATING_PITCH - BEND_RADIUS)
+            break
+    wg14.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg14.add_straight_segment_until_y(left_grating2.port.origin[1])
+
+    # Create the fifth right-hand side grating coupler
+    # right_grating5 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(
+    #     port=wg14.current_port,
+    #     **coupler_params,
+    #     angle=wg14.angle)
+
+    right_grating5 = CornerstoneGratingCoupler().create_coupler(origin=(wg14.current_port.origin[0], position[1]),
+                                                                coupler_params=coupler_params)
+
+    # Now create the waveguide to connect the right-gratings
+
+    wg15 = Waveguide.make_at_port(DC6.right_ports[1])
+    wg15.add_straight_segment(length = GRATING_PITCH)
+
+    # Routing to the next multiple of 127
+
+    for j in range(VGA_NUM_CHANNELS):
+        if wg15.current_port.origin[0] < j * GRATING_PITCH:
+            wg15.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    wg15.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    wg15.add_straight_segment_until_y(left_grating1.port.origin[1])
+
+    # Create the fifth right-hand side grating coupler
+    # right_grating4 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(
+    #     port=wg15.current_port,
+    #     **coupler_params,
+    #     angle=wg15.angle)
+
+    right_grating4 = CornerstoneGratingCoupler().create_coupler(origin=(8*GRATING_PITCH, position[1]),
+                                                                coupler_params=coupler_params)
+
+    right_grating3 = CornerstoneGratingCoupler().create_coupler(origin=(9 * GRATING_PITCH, position[1]),
+                                                                coupler_params=coupler_params)
+
+    right_grating2 = CornerstoneGratingCoupler().create_coupler(origin=(10 * GRATING_PITCH, position[1]),
+                                                                coupler_params=coupler_params)
+
+    right_grating1 = CornerstoneGratingCoupler().create_coupler(origin=(11 * GRATING_PITCH, position[1]),
+                                                                coupler_params=coupler_params)
+
+    wg16 = Waveguide.make_at_port(port=right_grating3.port)
+    wg16.add_straight_segment_until_y(DC4.right_ports[1].origin[1] -BEND_RADIUS)
+    wg16.add_bend(angle= pi/2, radius= BEND_RADIUS)
+    wg16.add_straight_segment_until_x(DC4.right_ports[1].origin[0])
+
+    wg17 = Waveguide.make_at_port(port=right_grating2.port)
+    wg17.add_straight_segment_until_y(DC5.right_ports[0].origin[1] - BEND_RADIUS)
+    wg17.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg17.add_straight_segment_until_x(DC5.right_ports[0].origin[0])
+
+    wg18 = Waveguide.make_at_port(port=right_grating1.port)
+    wg18.add_straight_segment_until_y(DC5.right_ports[1].origin[1] - BEND_RADIUS)
+    wg18.add_bend(angle=pi / 2, radius=BEND_RADIUS)
+    wg18.add_straight_segment_until_x(DC5.right_ports[1].origin[0])
+
+    # Add the sub-components to the respective cell and layers
+    CNOT_GATE_cell.add_cell(left_grating1.cell)  # Add the first left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(left_grating2.cell)  # Add the second left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(left_grating3.cell)  # Add the third left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(left_grating4.cell)  # Add the fourth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(left_grating5.cell)  # Add the fifth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(left_grating6.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+
+    CNOT_GATE_cell.add_cell(right_grating1.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(right_grating2.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(right_grating3.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(right_grating4.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(right_grating5.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+    CNOT_GATE_cell.add_cell(right_grating6.cell)  # Add the sixth left-hand grating coupler cell to the DC cell
+
+
+
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC1)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC2)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC3)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC4)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC5)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, DC6)  # Add the DC sub-component to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg1)  # Add the third waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg2)  # Add the third waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg3)  # Add the third waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg4)  # Add the fourth waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg5)  # Add the fifth waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg6)  # Add the sixth waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg7)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg8)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg9)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg10)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg11)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg12)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg13)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg14)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg15)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg16)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg17)  # Add the SEVENTH waveguide to the DC cell
+    CNOT_GATE_cell.add_to_layer(WAVEGUIDE_LAYER, wg18)  # Add the SEVENTH waveguide to the DC cell
+
+
+    # Grating checker
+    # grating_checker([left_grating1, left_grating2])
+    # grating_checker([left_grating1, right_grating1])
+    # grating_checker([left_grating1, right_grating2])
+
+    return  CNOT_GATE_cell

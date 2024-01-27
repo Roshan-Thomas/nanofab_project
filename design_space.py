@@ -300,6 +300,31 @@ def cascaded_mzi_sweep(layout_cell):
 
     return layout_cell
 
+
+def CNOT_GATE_sweep(layout_cell,current_width):
+    gap1 = 0.25
+    gap2 = 0.4
+    coupling_length1 = 1.27
+    coupling_length2 = 2.54
+
+    CNOT_GATE_cell = CNOT_GATE(coupler_params,
+           coupling_length1 = coupling_length1,
+           coupling_length2 = coupling_length2,
+           gap1 = gap1,
+           gap2 = gap2,
+           position=(0,0),
+           name= 'CNOT Gate')
+    cell_width = -CNOT_GATE_cell.bounds[0] + CNOT_GATE_cell.bounds[2]
+
+    current_width = current_width + cell_width + layout_cell.horizontal_spacing * 1.5
+    if current_width > CHIP_WIDTH:
+        layout_cell.begin_new_row()
+        layout_cell.add_to_row(CNOT_GATE_cell)
+        current_width = cell_width + layout_cell.horizontal_alignment + layout_cell.horizontal_spacing
+    else:
+        layout_cell.add_to_row(CNOT_GATE_cell)
+    return layout_cell, current_width
+
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -414,6 +439,9 @@ def populate_gds(layout_cell, polygon):
 
     # Grating Sweep
     layout_cell, current_width = grating_sweep(layout_cell, current_width)
+
+    ### CNOT GATE SWEEP
+    layout_cell, current_width = CNOT_GATE_sweep(layout_cell, current_width)
 
     # Generate the design space populated with the devices
     design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
