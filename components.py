@@ -488,7 +488,7 @@ def spiral_loopback(coupler_params,
     # Create the cell that we are going to add to
     spiral_loopback_cell = Cell(name)
     spiral_loopback_cell.add_to_layer(LABEL_LAYER,
-                                      Text(origin=[150, -385],
+                                      Text(origin=LABEL_ORIGIN,
                                            height=LABEL_HEIGHT,
                                            angle=LABEL_ANGLE_VERTICAL,
                                            text=name
