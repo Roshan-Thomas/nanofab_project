@@ -89,7 +89,7 @@ def grating_sweep(layout_cell,current_width):
 
                     sweep_grating_loopback = grating_loopback(sweep_coupler_params,
                                                  taper_route=added_waveguide_length,
-                                                 name='Grating Loopback_ZL\nAdded Length {0}um\nWidth {1}um\nPeriod {2}um\nff {3}'.format(added_waveguide_length, waveguide_width, round(period, 3), fill_factor)
+                                                 name='RT_ZL_Grating Loopback\nAdded Length {0}um\nWidth {1}um\nPeriod {2}um\nff {3}'.format(added_waveguide_length, waveguide_width, round(period, 3), fill_factor)
                                                  )
 
                     cell_width = -sweep_grating_loopback.bounds[0] + sweep_grating_loopback.bounds[2]
@@ -157,7 +157,7 @@ def directional_coupler_sweep(layout_cell, current_width):
             temp_cell = directional_coupler(coupler_params,
                                             coupling_length=coupling_length,
                                             gap=gap,
-                                            name='Directional Coupler  {0}\nGap {1}um\nCoupling Length {2}um'.format(coupling_ratios[j], gap, coupling_length))
+                                            name='RT_ZL_Directional Coupler  {0}\nGap {1}um\nCoupling Length {2}um'.format(coupling_ratios[j], gap, coupling_length))
 
             cell_width = -temp_cell.bounds[0] + temp_cell.bounds[2]
             current_width = current_width + cell_width + layout_cell.horizontal_spacing * 2  # 1.5
@@ -315,7 +315,7 @@ def ring_sweep(layout_cell,current_width):
             sweep_ring_resonator = ring_resonator(sweep_ring_parameters,
                                                   gap=gap,
                                                   radius=ring_radius,
-                                                  name='Ring_Resonator_ZL\nRadius_' + str(ring_radius) + '\nGap_' + str(gap))
+                                                  name='RT_ZL_Ring_Resonator_ZL\nRadius_' + str(ring_radius) + '\nGap_' + str(gap))
 
             cell_width = -sweep_ring_resonator.bounds[0] + sweep_ring_resonator.bounds[2]
 
@@ -349,7 +349,7 @@ def spiral_sweep(layout_cell,current_width):
         for j, gap_size in enumerate(gap_sizes):
             for k, inner_gap_size in enumerate(inner_gap_sizes):
                 sweep_spiral = spiral_loopback(coupler_params,
-                                               name='SB_Spiral\nNo._loops_' + str(loop_numbers) + '\nGap_between_waveguides_' + str(gap_size) + '\nInner_circle_radius_' + str(inner_gap_size),
+                                               name='RT_ZL_Spiral\nNo._loops_' + str(loop_numbers) + '\nGap_between_waveguides_' + str(gap_size) + '\nInner_circle_radius_' + str(inner_gap_size),
                                                number=loop_numbers,
                                                gap_size=gap_size,
                                                inner_gap_size=inner_gap_size
