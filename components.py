@@ -1298,7 +1298,7 @@ def cascaded_straight_dc_mzi(coupler_params,
         which=1
     )
 
-    DC_output_2 = dc_mzi_block(
+    DC_output_3 = dc_mzi_block(
         cascaded_dc_mzi,
         coupler_params, 
         wg, 
@@ -1311,22 +1311,96 @@ def cascaded_straight_dc_mzi(coupler_params,
         grating_flag=0
     )
 
-    # # Output Gratings
-    # right_grating1 = CornerstoneGratingCoupler().create_coupler(
-    #     origin=(DC_output_2.right_ports[1], position[1]),
-    #     coupler_params=coupler_params,
-    #     # angle=DC_output_2.angle
-    # )
+
+    ### Bottom Right Grating
+    wg3 = Waveguide.make_at_port(port=DC_output_2.right_ports[0])
+    wg3.add_straight_segment(GRATING_PITCH)
+
+    # Routing to the next multiple of 127
+
+    for j in range(VGA_NUM_CHANNELS):
+        if wg3.current_port.origin[0] < j * GRATING_PITCH:
+            wg3.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+
+    wg3.add_bend(angle=-pi/2, radius=BEND_RADIUS)  
+
+    right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg3.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg3.angle,
+                                                                                    )
+
+    ### 2nd Last Right Grating
+    wg4 = Waveguide.make_at_port(port=DC_output_2.right_ports[1])
+    wg4.add_straight_segment(GRATING_PITCH + 127)
+
+    # Routing to the next multiple of 127
+
+    for j in range(VGA_NUM_CHANNELS):
+        if wg4.current_port.origin[0] < j * GRATING_PITCH:
+            wg4.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    
+    wg4.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg4.add_straight_segment_until_y(right_grating1.port.origin[1])
+
+    right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg4.angle)
+
+
+    ### 3rd Last Right Grating
+    wg5 = Waveguide.make_at_port(port=DC_output_3.right_ports[0])
+    wg5.add_straight_segment(GRATING_PITCH + 127 + 127)
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+        if wg5.current_port.origin[0] < j * GRATING_PITCH:
+            wg5.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    
+    wg5.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg5.add_straight_segment_until_y(right_grating2.port.origin[1])
+
+    right_grating3 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg5.angle)
+
+    ### Last Right Grating
+    wg6 = Waveguide.make_at_port(port=DC_output_3.right_ports[1])
+    wg6.add_straight_segment(GRATING_PITCH + (127 * 3))
+
+    # Routing to the next multiple of 127
+    for j in range(VGA_NUM_CHANNELS):
+        if wg6.current_port.origin[0] < j * GRATING_PITCH:
+            wg6.add_straight_segment_until_x(j * GRATING_PITCH - BEND_RADIUS)
+            break
+    
+    wg6.add_bend(angle=-pi/2, radius=BEND_RADIUS)
+    wg6.add_straight_segment_until_y(right_grating3.port.origin[1])
+
+    right_grating4 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg6.current_port,
+                                                                                    **coupler_params,
+                                                                                    angle=wg6.angle)
 
     #########
 
     # Add the sub-components to the MZI Cell
     cascaded_dc_mzi.add_cell(left_grating1.cell)
     cascaded_dc_mzi.add_cell(left_grating2.cell)
+    cascaded_dc_mzi.add_cell(right_grating1.cell)
+    cascaded_dc_mzi.add_cell(right_grating2.cell)
+    cascaded_dc_mzi.add_cell(right_grating3.cell)
+    cascaded_dc_mzi.add_cell(right_grating4.cell)
+    
 
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg1)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg2)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg3)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg4)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg5)
+    cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, wg6)
 
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_top)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_bottom)
