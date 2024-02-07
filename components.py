@@ -1216,7 +1216,8 @@ def cascaded_straight_dc_mzi(coupler_params,
     wg = Waveguide.make_at_port(
         port=left_grating2.port
     )
-    wg.add_straight_segment(length=GRATING_TAPER_ROUTE)
+    # wg.add_straight_segment(length=GRATING_TAPER_ROUTE)
+    wg.add_straight_segment(length=(GRATING_PITCH*2))
     wg.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg.add_straight_segment(length=GRATING_TAPER_ROUTE)
 
@@ -1324,6 +1325,7 @@ def cascaded_straight_dc_mzi(coupler_params,
             break
 
     wg3.add_bend(angle=-pi/2, radius=BEND_RADIUS)  
+    wg3.add_straight_segment(57.152)
 
     right_grating1 = CornerstoneGratingCoupler().create_coupler(origin=(wg3.current_port.origin[0], position[1]),
                                                                 coupler_params=coupler_params,
@@ -1356,7 +1358,7 @@ def cascaded_straight_dc_mzi(coupler_params,
             break
     
     wg4.add_bend(angle=-pi/2, radius=BEND_RADIUS)
-    # wg4.add_straight_segment_until_y(right_grating1.port.origin[1])
+    wg4.add_straight_segment(77)
 
     # right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
     #                                                                                 **coupler_params,
@@ -1379,11 +1381,6 @@ def cascaded_straight_dc_mzi(coupler_params,
     
     wg5.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg5.add_straight_segment_until_y(right_grating2.port.origin[1])
-
-    # right_grating3 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
-    #                                                                                 **coupler_params,
-    #                                                                                 angle=wg5.angle)
-
 
     right_grating3 = CornerstoneGratingCoupler().create_coupler(origin=(wg5.current_port.origin[0], position[1]),
                                                                 coupler_params=coupler_params,
