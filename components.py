@@ -1332,19 +1332,6 @@ def cascaded_straight_dc_mzi(coupler_params,
                                                                 grating_angle=wg3.angle
                                                             )
 
-    # right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg3.current_port,
-    #                                                                                 **coupler_params,
-    #                                                                                 angle=wg3.angle,
-    #                                                                                 )
-
-
-    # wg12.add_straight_segment_until_x(right_grating3.port.origin[0] + GRATING_PITCH - BEND_RADIUS)
-    # wg12.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
-    # wg12.add_straight_segment_until_y(left_grating1.port.origin[1])
-
-    # right_grating4 = CornerstoneGratingCoupler().create_coupler(origin=(wg12.current_port.origin[0], position[1]),
-    #                                                             coupler_params=coupler_params, grating_angle=wg12.angle)
-
 
     ### 2nd Last Right Grating
     wg4 = Waveguide.make_at_port(port=DC_output_2.right_ports[1])
@@ -1360,9 +1347,6 @@ def cascaded_straight_dc_mzi(coupler_params,
     wg4.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg4.add_straight_segment(77)
 
-    # right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
-    #                                                                                 **coupler_params,
-    #                                                                                 angle=wg4.angle)
 
     right_grating2 = CornerstoneGratingCoupler().create_coupler(origin=(wg4.current_port.origin[0], position[1]),
                                                                 coupler_params=coupler_params,
@@ -1426,9 +1410,9 @@ def cascaded_straight_dc_mzi(coupler_params,
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_top)
     cascaded_dc_mzi.add_to_layer(WAVEGUIDE_LAYER, DC_bottom)
 
-    # cascaded_dc_mzi.add_cell(right_grating1.cell)
-
     # Grating checker
     grating_checker([left_grating1, left_grating2])
+    grating_checker([right_grating1, right_grating2])
+    grating_checker([right_grating3, right_grating4])
 
     return cascaded_dc_mzi
