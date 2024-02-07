@@ -1325,10 +1325,24 @@ def cascaded_straight_dc_mzi(coupler_params,
 
     wg3.add_bend(angle=-pi/2, radius=BEND_RADIUS)  
 
-    right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg3.current_port,
-                                                                                    **coupler_params,
-                                                                                    angle=wg3.angle,
-                                                                                    )
+    right_grating1 = CornerstoneGratingCoupler().create_coupler(origin=(wg3.current_port.origin[0], position[1]),
+                                                                coupler_params=coupler_params,
+                                                                grating_angle=wg3.angle
+                                                            )
+
+    # right_grating1 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg3.current_port,
+    #                                                                                 **coupler_params,
+    #                                                                                 angle=wg3.angle,
+    #                                                                                 )
+
+
+    # wg12.add_straight_segment_until_x(right_grating3.port.origin[0] + GRATING_PITCH - BEND_RADIUS)
+    # wg12.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
+    # wg12.add_straight_segment_until_y(left_grating1.port.origin[1])
+
+    # right_grating4 = CornerstoneGratingCoupler().create_coupler(origin=(wg12.current_port.origin[0], position[1]),
+    #                                                             coupler_params=coupler_params, grating_angle=wg12.angle)
+
 
     ### 2nd Last Right Grating
     wg4 = Waveguide.make_at_port(port=DC_output_2.right_ports[1])
@@ -1342,12 +1356,16 @@ def cascaded_straight_dc_mzi(coupler_params,
             break
     
     wg4.add_bend(angle=-pi/2, radius=BEND_RADIUS)
-    wg4.add_straight_segment_until_y(right_grating1.port.origin[1])
+    # wg4.add_straight_segment_until_y(right_grating1.port.origin[1])
 
-    right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
-                                                                                    **coupler_params,
-                                                                                    angle=wg4.angle)
+    # right_grating2 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg4.current_port,
+    #                                                                                 **coupler_params,
+    #                                                                                 angle=wg4.angle)
 
+    right_grating2 = CornerstoneGratingCoupler().create_coupler(origin=(wg4.current_port.origin[0], position[1]),
+                                                                coupler_params=coupler_params,
+                                                                grating_angle=wg4.angle
+                                                            )
 
     ### 3rd Last Right Grating
     wg5 = Waveguide.make_at_port(port=DC_output_3.right_ports[0])
@@ -1362,9 +1380,15 @@ def cascaded_straight_dc_mzi(coupler_params,
     wg5.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg5.add_straight_segment_until_y(right_grating2.port.origin[1])
 
-    right_grating3 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
-                                                                                    **coupler_params,
-                                                                                    angle=wg5.angle)
+    # right_grating3 = CornerstoneGratingCoupler().create_cornerstone_coupler_at_port(port=wg5.current_port,
+    #                                                                                 **coupler_params,
+    #                                                                                 angle=wg5.angle)
+
+
+    right_grating3 = CornerstoneGratingCoupler().create_coupler(origin=(wg5.current_port.origin[0], position[1]),
+                                                                coupler_params=coupler_params,
+                                                                grating_angle=wg5.angle
+                                                            )
 
     ### Last Right Grating
     wg6 = Waveguide.make_at_port(port=DC_output_3.right_ports[1])
