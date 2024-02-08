@@ -28,7 +28,7 @@ def generate_blank_gds(d_height=CHIP_HEIGHT,  # 3000
     outer_corners = [(0, 0), (d_width, 0), (d_width, d_height), (0, d_height)]
     polygon = Polygon(outer_corners)
 
-    layout = GridLayout(title='SOI_Devices_Roshan Thomas_2024',
+    layout = GridLayout(title='SOI_Devices_Roshan_Thomas_2024',
                         frame_layer=CELL_OUTLINE_LAYER,
                         text_layer=LABEL_LAYER,
                         region_layer_type=None,
@@ -389,9 +389,11 @@ def cascaded_dc_mzi_sweep(layout_cell):
     path_length_difference = 0
 
     # Increment Sweeps
-    center_spacings = [18, 36, 36.35, 9.18, 18.35, 18.04, 9, 18, 18.35]
-    dc_coupling_lengths = [56, 32, 32, 14]
-    increments = [0, -2, -1, -0.5, 0.5, 1]
+    # center_spacings = [18, 36, 36.35, 9.18, 18.35, 18.04, 9, 18, 18.35]
+    center_spacings = [30, 27.1, 41.4, 46.9, 27.8, 25.5, 46.6, 27.2, 25.5]
+    # dc_coupling_lengths = [56, 32, 32, 14]
+    dc_coupling_lengths = [12, 16.4, 16.4, 20.5]
+    increments = [0, 0.1, 0.2, 0.5, -0.1, -0.2]
 
 
     for increment in increments:
@@ -431,7 +433,7 @@ def populate_gds(layout_cell, polygon):
 
 
     # Generate the design space populated with the devices
-    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT')
+    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_RT_University_of_Bristol')
 
     # Add our bounding box
     design_space_cell.add_to_layer(CELL_OUTLINE_LAYER, polygon)
