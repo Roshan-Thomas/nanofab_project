@@ -1076,7 +1076,8 @@ def custom_mzi(DC,
     wg2.add_straight_segment(length=BEND_RADIUS)
     wg2.add_bend(angle=pi/2, radius=BEND_RADIUS)
     wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
-    wg2.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    # wg2.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    wg2.add_straight_segment(length=mzi_center_spacing)
     wg2.add_bend(angle=-pi/2, radius=BEND_RADIUS)
     wg2.add_bend(angle=pi/2, radius=BEND_RADIUS)
     wg2.add_straight_segment(length=BEND_RADIUS)
@@ -1087,7 +1088,8 @@ def custom_mzi(DC,
     wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
     wg3.add_straight_segment(length=(path_length_difference/2))
     wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
-    wg3.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    # wg3.add_straight_segment(length=(mzi_center_spacing - 2 * BEND_RADIUS))
+    wg3.add_straight_segment(length=mzi_center_spacing)
     wg3.add_bend(angle=pi / 2, radius=BEND_RADIUS)
     wg3.add_straight_segment(length=(path_length_difference/2))
     wg3.add_bend(angle=-pi / 2, radius=BEND_RADIUS)
@@ -1119,14 +1121,14 @@ def dc_mzi_block(cascaded_dc_mzi,
 
     top_mzi_1, bottom_mzi_1 = custom_mzi(
         DC1, 
-        mzi_center_spacing, 
+        mzi_center_spacing[0], 
         path_length_difference
         )
 
     # Create the second DC
     DC2 = DirectionalCoupler.make_at_port(
         port=top_mzi_1.current_port,
-        length=coupling_length,
+        length=coupling_length[0],
         gap=gap,
         bend_radius=BEND_RADIUS,
         which=1
@@ -1134,13 +1136,13 @@ def dc_mzi_block(cascaded_dc_mzi,
 
     top_mzi_2, bottom_mzi_2 = custom_mzi(
         DC2,
-        mzi_center_spacing,
+        mzi_center_spacing[1],
         path_length_difference
     )
 
     DC3 = DirectionalCoupler.make_at_port(
         port=top_mzi_2.current_port,
-        length=coupling_length,
+        length=coupling_length[1],
         gap=gap,
         bend_radius=BEND_RADIUS,
         which=1
@@ -1148,13 +1150,13 @@ def dc_mzi_block(cascaded_dc_mzi,
 
     top_mzi_3, bottom_mzi_3 = custom_mzi(
         DC3,
-        mzi_center_spacing,
+        mzi_center_spacing[2],
         path_length_difference
     )
 
     DC4 = DirectionalCoupler.make_at_port(
         port=top_mzi_3.current_port,
-        length=coupling_length,
+        length=coupling_length[2],
         gap=gap,
         bend_radius=BEND_RADIUS,
         which=1
@@ -1223,7 +1225,7 @@ def cascaded_straight_dc_mzi(coupler_params,
 
     # Create the First DC
     DC1 = DirectionalCoupler.make_at_port(port=wg.current_port,
-                                        length=coupling_length,
+                                        length=coupling_length[0],
                                         gap=gap,
                                         bend_radius=BEND_RADIUS)
 
@@ -1234,9 +1236,9 @@ def cascaded_straight_dc_mzi(coupler_params,
                     coupler_params, 
                     wg, 
                     left_grating1, 
-                    coupling_length, 
+                    [coupling_length[1], coupling_length[2], coupling_length[3]], 
                     gap,
-                    mzi_center_spacing,
+                    [mzi_center_spacing[0], mzi_center_spacing[1], mzi_center_spacing[2]],
                     path_length_difference,
                     DC1,
                     grating_flag=1
@@ -1259,7 +1261,7 @@ def cascaded_straight_dc_mzi(coupler_params,
 
     DC_bottom = DirectionalCoupler.make_at_port(
         port=wg1.current_port,
-        length=coupling_length,
+        length=coupling_length[0],
         gap=gap,
         bend_radius=BEND_RADIUS,
         which=1
@@ -1270,9 +1272,9 @@ def cascaded_straight_dc_mzi(coupler_params,
         coupler_params, 
         wg, 
         wg1, 
-        coupling_length, 
+        [coupling_length[1], coupling_length[2], coupling_length[3]], 
         gap,
-        mzi_center_spacing,
+        [mzi_center_spacing[6], mzi_center_spacing[7], mzi_center_spacing[8]],
         path_length_difference,
         DC_bottom,
         grating_flag=0
@@ -1293,7 +1295,7 @@ def cascaded_straight_dc_mzi(coupler_params,
 
     DC_top = DirectionalCoupler.make_at_port(
         port=wg2.current_port,
-        length=coupling_length,
+        length=coupling_length[0],
         gap=gap,
         bend_radius=BEND_RADIUS,
         which=1
@@ -1304,9 +1306,9 @@ def cascaded_straight_dc_mzi(coupler_params,
         coupler_params, 
         wg, 
         wg2, 
-        coupling_length, 
+        [coupling_length[1], coupling_length[2], coupling_length[3]], 
         gap,
-        mzi_center_spacing,
+        [mzi_center_spacing[3], mzi_center_spacing[4], mzi_center_spacing[5]],
         path_length_difference,
         DC_top,
         grating_flag=0

@@ -311,15 +311,47 @@ def cascaded_dc_mzi_sweep(layout_cell):
     mzi_center_spacing = 75
     path_length_difference = 0
 
-    cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
-                                        coupling_length=coupling_length,
-                                        gap=gap,
-                                        mzi_center_spacing=mzi_center_spacing,
-                                        path_length_difference=path_length_difference,
-                                        position=(0,0),
-                                        name='CASCADED_STRAIGHT_DC_MZI') 
+    # Increment Sweeps
+    center_spacings = [18, 36, 36.35, 9.18, 18.35, 18.04, 9, 18, 18.35]
+    dc_coupling_lengths = [56, 32, 32, 14]
+    increments = [0, -2, -1, -0.5, 0.5, 1]
 
-    layout_cell.add_to_row(cascaded_dc_mzi_cell)
+
+    for increment in increments:
+        new_center_spacings = [x+increment for x in center_spacings]
+        new_dc_coupling_lengths = [x+increment for x in dc_coupling_lengths]
+        cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
+                                                        coupling_length=new_dc_coupling_lengths,
+                                                        gap=gap,
+                                                        mzi_center_spacing=new_center_spacings,
+                                                        path_length_difference=path_length_difference,
+                                                        position=(0,0),
+                                                        name=f'CASCADED_STRAIGHT_DC_MZI_{increment}')
+        if increments.index(increment) == 0:
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+        elif increments.index(increment) % 2 == 0:
+            layout_cell.begin_new_row()
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+        else:
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+
+    # cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
+    #                                     coupling_length=coupling_length,
+    #                                     gap=gap,
+    #                                     mzi_center_spacing=mzi_center_spacing,
+    #                                     path_length_difference=path_length_difference,
+    #                                     position=(0,0),
+    #                                     name='CASCADED_STRAIGHT_DC_MZI') 
+
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.begin_new_row()
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.begin_new_row()
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
+    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
 
     return layout_cell
 
