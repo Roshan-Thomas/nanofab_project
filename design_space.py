@@ -28,7 +28,7 @@ def generate_blank_gds(d_height=CHIP_HEIGHT,  # 3000
     outer_corners = [(0, 0), (d_width, 0), (d_width, d_height), (0, d_height)]
     polygon = Polygon(outer_corners)
 
-    layout = GridLayout(title='SOI_Devices_Roshan_Zhaojin_2023',
+    layout = GridLayout(title='SOI_Devices_Roshan Thomas_2024',
                         frame_layer=CELL_OUTLINE_LAYER,
                         text_layer=LABEL_LAYER,
                         region_layer_type=None,
@@ -301,60 +301,6 @@ def cascaded_mzi_sweep(layout_cell):
     return layout_cell
 
 
-#######################
-# Cascaded DC MZI SWEEP
-#######################
-
-def cascaded_dc_mzi_sweep(layout_cell):
-    gap = 0.25
-    coupling_length = 1.27
-    mzi_center_spacing = 75
-    path_length_difference = 0
-
-    # Increment Sweeps
-    center_spacings = [18, 36, 36.35, 9.18, 18.35, 18.04, 9, 18, 18.35]
-    dc_coupling_lengths = [56, 32, 32, 14]
-    increments = [0, -2, -1, -0.5, 0.5, 1]
-
-
-    for increment in increments:
-        new_center_spacings = [x+increment for x in center_spacings]
-        new_dc_coupling_lengths = [x+increment for x in dc_coupling_lengths]
-        cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
-                                                        coupling_length=new_dc_coupling_lengths,
-                                                        gap=gap,
-                                                        mzi_center_spacing=new_center_spacings,
-                                                        path_length_difference=path_length_difference,
-                                                        position=(0,0),
-                                                        name=f'CASCADED_STRAIGHT_DC_MZI_{increment}')
-        if increments.index(increment) == 0:
-            layout_cell.add_to_row(cascaded_dc_mzi_cell)
-        elif increments.index(increment) % 2 == 0:
-            layout_cell.begin_new_row()
-            layout_cell.add_to_row(cascaded_dc_mzi_cell)
-        else:
-            layout_cell.add_to_row(cascaded_dc_mzi_cell)
-
-    # cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
-    #                                     coupling_length=coupling_length,
-    #                                     gap=gap,
-    #                                     mzi_center_spacing=mzi_center_spacing,
-    #                                     path_length_difference=path_length_difference,
-    #                                     position=(0,0),
-    #                                     name='CASCADED_STRAIGHT_DC_MZI') 
-
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.begin_new_row()
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.begin_new_row()
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-    # layout_cell.add_to_row(cascaded_dc_mzi_cell)
-
-    return layout_cell
-
 ######################
 # RING RESONATOR SWEEP
 ######################
@@ -432,7 +378,41 @@ def spiral_sweep(layout_cell,current_width):
 
     return layout_cell, current_width
 
+#######################
+# Cascaded DC MZI SWEEP
+#######################
 
+def cascaded_dc_mzi_sweep(layout_cell):
+    gap = 0.25
+    coupling_length = 1.27
+    mzi_center_spacing = 75
+    path_length_difference = 0
+
+    # Increment Sweeps
+    center_spacings = [18, 36, 36.35, 9.18, 18.35, 18.04, 9, 18, 18.35]
+    dc_coupling_lengths = [56, 32, 32, 14]
+    increments = [0, -2, -1, -0.5, 0.5, 1]
+
+
+    for increment in increments:
+        new_center_spacings = [x+increment for x in center_spacings]
+        new_dc_coupling_lengths = [x+increment for x in dc_coupling_lengths]
+        cascaded_dc_mzi_cell = cascaded_straight_dc_mzi(coupler_params,
+                                                        coupling_length=new_dc_coupling_lengths,
+                                                        gap=gap,
+                                                        mzi_center_spacing=new_center_spacings,
+                                                        path_length_difference=path_length_difference,
+                                                        position=(0,0),
+                                                        name=f'RT_CWDM_CASCADED_DC_MZI \nIncrement: {increment}')
+        if increments.index(increment) == 0:
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+        elif increments.index(increment) % 2 == 0:
+            layout_cell.begin_new_row()
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+        else:
+            layout_cell.add_to_row(cascaded_dc_mzi_cell)
+
+    return layout_cell
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
@@ -446,42 +426,18 @@ def populate_gds(layout_cell, polygon):
 
     layout_cell.begin_new_row()
 
-    #layout_cell, current_width = grating_sweep(layout_cell, current_width)
-
-    # Add the device sweeps to the layout cell
-    # layout_cell = test_structure_gc(layout_cell)
-
-
-    # layout_cell = mmi_1X2_sweep(layout_cell)
-    # layout_cell = mmi_2X2_sweep(layout_cell)
-    # layout_cell, current_width = directional_coupler_sweep(layout_cell, current_width)
-
-    # # Spiral Sweep
-    # layout_cell, current_width = spiral_sweep(layout_cell,current_width)
-
-    # # Cascaded MZI
-    # layout_cell = cascaded_mzi_sweep(layout_cell)
-    # layout_cell.begin_new_row()
-
-    # # Ring Sweep
-    # layout_cell,current_width = ring_sweep(layout_cell,current_width)
-    # layout_cell.begin_new_row()
-
-    # # Grating Sweep
-    # layout_cell, current_width = grating_sweep(layout_cell, current_width)
-
     # Cascaded Straight DC MZIs
     layout_cell = cascaded_dc_mzi_sweep(layout_cell)
 
 
     # Generate the design space populated with the devices
-    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT_ZL')
+    design_space_cell, mapping = layout_cell.generate_layout(cell_name='Cell0_University_of_Bristol_Nanofab_2024_RT')
 
     # Add our bounding box
     design_space_cell.add_to_layer(CELL_OUTLINE_LAYER, polygon)
 
     # Save our GDS
-    design_space_cell.save('{0}SOI_Devices_RT_ZL_2023.gds'.format(savepath))
+    design_space_cell.save('{0}SOI_Devices_RT_2023.gds'.format(savepath))
     # design_space_cell.show()
 
     return design_space_cell
